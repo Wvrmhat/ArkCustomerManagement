@@ -1,13 +1,19 @@
-@model ArkCustomerManagement.Models.AddCustomer
+@model ArkCustomerManagement.Models.CustomerRequest
 
 @{
-    ViewData["Title"] = "AddCustomer";
+    ViewData["Title"] = Model.CustomerId.HasValue ? "Edit Customer" : "Add Customer";
 }
 
 <div class="row">
     <div class="col-md-6 offset-md-3">
-        <form asp-controller="Home" asp-action="AddCustomer" method="post">
+    h1 class="text-center">@ViewData["Title"]</h1>
+        <form asp-controller="Home" asp-action="CustomerForm" method="post">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            @if (Model.CustomerId != 0)
+            {
+                <input type="hidden" asp-for="CustomerId" />
+            }
 
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
@@ -46,7 +52,7 @@
             </div>
 
             <div class="form-group mt-3">
-                <button type="submit" class="btn btn-primary">Add Customer</button>
+                <button type="button" class="btn btn-primary">Submit</button>
             </div>
         </form>
     </div>

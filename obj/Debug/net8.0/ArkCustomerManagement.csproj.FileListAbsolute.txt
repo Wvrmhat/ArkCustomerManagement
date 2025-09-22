@@ -169,3 +169,4 @@ C:\Users\maxna\source\repos\ArkCustomerManagement\obj\Debug\net8.0\ArkCusto.98F8
 C:\Users\maxna\source\repos\ArkCustomerManagement\bin\Debug\net8.0\Microsoft.Extensions.Diagnostics.Abstractions.dll
 C:\Users\maxna\source\repos\ArkCustomerManagement\bin\Debug\net8.0\Microsoft.Extensions.Hosting.Abstractions.dll
 C:\Users\maxna\source\repos\ArkCustomerManagement\bin\Debug\net8.0\Microsoft.Extensions.ObjectPool.dll
+C:\Users\maxna\source\repos\ArkCustomerManagement\obj\Debug\net8.0\ArkCustomerManagement.sourcelink.json

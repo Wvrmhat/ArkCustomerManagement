@@ -9,7 +9,7 @@
 </div>
 
 <div class="mt-4">
-    <a asp-controller="Home" asp-action="AddCustomer" class="btn btn-primary mb-3">Add New Customer</a>
+    <a asp-controller="Home" asp-action="CustomerForm" class="btn btn-primary mb-3">Add New Customer</a>
 
     <table class="table table-striped">
         <thead>
@@ -34,8 +34,8 @@
                     <td>@customer.Vat</td>
                     <td>@customer.TelephoneNumber</td>
                     <td>
-                    @Html.ActionLink("Edit", "EditCustomer", new { id = customer.CustomerId }, new { @class = "btn btn-sm btn-secondary" })
-                    @Html.ActionLink("Delete", "DeleteCustomer", new { id = customer.CustomerId }, new { @class = "btn btn-sm btn-danger", onclick = "return confirm('Are you sure you want to delete this customer?');" })
+                    <a asp-controler="Home" asp-action="CustomerForm" asp-route-id="@customer.CustomerId" class="btn btn-sm btn-secondary">Edit</a>
+                    <a asp-controller="Home" asp-action="DeleteCustomer" asp-route-id="@customer.CustomerId" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
                     </td>
                 </tr>
             }

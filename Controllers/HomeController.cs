@@ -32,18 +32,64 @@ namespace ArkCustomerManagement.Controllers
             return View(customers);
         }
 
+        // [HttpGet]
+        // public IActionResult AddCustomer() 
+        // { 
+        //     return View(new AddCustomer()); 
+        // }
+
         [HttpGet]
-        public IActionResult AddCustomer() 
-        { 
-            return View(new AddCustomer()); 
+        public IActionResult CustomerForm(int? id)
+        {
+            if(id.HasValue) {
+                var customer = _context.Customers.FirstOrDefault(c => c.CustomerId == id.Value);
+                if (customer != null)
+                {
+                    var customerRequest = new CustomerRequest
+                    {
+                        CustomerId = customer.CustomerId,
+                        Name = customer.Name,
+                        Address = customer.Address,
+                        TelephoneNumber = customer.TelephoneNumber,
+                        ContactPersonName = customer.ContactPersonName,
+                        ContactPersonEmail = customer.ContactPersonEmail,
+                        Vat = customer.Vat
+                    };
+                    return View(customerRequest);
+                }
+                return NotFound();
+            }
+
+            return View(new CustomerRequest());
         }
 
         [HttpPost]
-        public async Task<IActionResult> AddCustomer(AddCustomer res)
+        public async Task<IActionResult> CustomerForm(CustomerRequest res)
         {
             if (ModelState.IsValid)
             {
-                var newCustomer = new Customer
+                if(res.CustomerId.HasValue)
+                {
+                    var existingCustomer = await _context.Customers.FindAsync(res.CustomerId.Value);
+                    if (existingCustomer != null)
+                    {
+                        existingCustomer.Name = res.Name;
+                        existingCustomer.Address = res.Address;
+                        existingCustomer.TelephoneNumber = res.TelephoneNumber;
+                        existingCustomer.ContactPersonName = res.ContactPersonName;
+                        existingCustomer.ContactPersonEmail = res.ContactPersonEmail;
+                        existingCustomer.Vat = res.Vat;
+
+                        _context.Update(existingCustomer);
+                        await _context.SaveChangesAsync();
+
+                        return RedirectToAction("CustomerList");
+                    }
+                    return NotFound();
+                } 
+                else
+                {
+                    var newCustomer = new Customer
                 {
                     Name = res.Name,
                     Address = res.Address,
@@ -52,14 +98,38 @@ namespace ArkCustomerManagement.Controllers
                     ContactPersonEmail = res.ContactPersonEmail,
                     Vat = res.Vat
                 };
-                _context.Customers.Add(newCustomer);
-                await _context.SaveChangesAsync();
-
-                return RedirectToAction("CustomerList");
+                    _context.Customers.Add(newCustomer);
+                   
+                }
+                 await _context.SaveChangesAsync();
+                 return RedirectToAction("CustomerList");
             }
 
             return View(res);
         }
+
+        // [HttpPost]
+        // public async Task<IActionResult> AddCustomer(AddCustomer res)
+        // {
+        //     if (ModelState.IsValid)
+        //     {
+        //         var newCustomer = new Customer
+        //         {
+        //             Name = res.Name,
+        //             Address = res.Address,
+        //             TelephoneNumber = res.TelephoneNumber,
+        //             ContactPersonName = res.ContactPersonName,
+        //             ContactPersonEmail = res.ContactPersonEmail,
+        //             Vat = res.Vat
+        //         };
+        //         _context.Customers.Add(newCustomer);
+        //         await _context.SaveChangesAsync();
+
+        //         return RedirectToAction("CustomerList");
+        //     }
+
+        //     return View(res);
+        // }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
@@ -67,60 +137,60 @@ namespace ArkCustomerManagement.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> EditCustomer(int id)
-        {
-            var customer = await _context.Customers.FindAsync(id);
-            if (customer == null)
-            {
-                return NotFound();
-            }
+        // [HttpGet]
+        // public async Task<IActionResult> EditCustomer(int id)
+        // {
+        //     var customer = await _context.Customers.FindAsync(id);
+        //     if (customer == null)
+        //     {
+        //         return NotFound();
+        //     }
 
-            var editCustomer = new EditCustomer
-            {
-                CustomerId = customer.CustomerId,
-                Name = customer.Name,
-                Address = customer.Address,
-                TelephoneNumber = customer.TelephoneNumber,
-                ContactPersonName = customer.ContactPersonName,
-                ContactPersonEmail = customer.ContactPersonEmail,
-                Vat = customer.Vat
-            };
+        //     var editCustomer = new EditCustomer
+        //     {
+        //         CustomerId = customer.CustomerId,
+        //         Name = customer.Name,
+        //         Address = customer.Address,
+        //         TelephoneNumber = customer.TelephoneNumber,
+        //         ContactPersonName = customer.ContactPersonName,
+        //         ContactPersonEmail = customer.ContactPersonEmail,
+        //         Vat = customer.Vat
+        //     };
 
-            return View(editCustomer);
-        }
+        //     return View(editCustomer);
+        // }
 
-        [HttpPost]
-        public async Task<IActionResult> EditCustomer(int id, [bind("CustomerId,Name,Address,TelephoneNumber,ContactPersonName,ContactPersonEmail,Vat")] EditCustomer res)
-        {
-            if (id != res.CustomerId)
-            {
-                return BadRequest();
-            }
+        // [HttpPost]
+        // public async Task<IActionResult> EditCustomer(int id, [bind("CustomerId,Name,Address,TelephoneNumber,ContactPersonName,ContactPersonEmail,Vat")] EditCustomer res)
+        // {
+        //     if (id != res.CustomerId)
+        //     {
+        //         return BadRequest();
+        //     }
 
-            if (ModelState.IsValid)
-            {
-                var customer = await _context.Customers.FindAsync(id);
-                if (customer == null)
-                {
-                    return NotFound();
-                }
+        //     if (ModelState.IsValid)
+        //     {
+        //         var customer = await _context.Customers.FindAsync(id);
+        //         if (customer == null)
+        //         {
+        //             return NotFound();
+        //         }
 
-                customer.Name = res.Name;
-                customer.Address = res.Address;
-                customer.TelephoneNumber = res.TelephoneNumber;
-                customer.ContactPersonName = res.ContactPersonName;
-                customer.ContactPersonEmail = res.ContactPersonEmail;
-                customer.Vat = res.Vat;
+        //         customer.Name = res.Name;
+        //         customer.Address = res.Address;
+        //         customer.TelephoneNumber = res.TelephoneNumber;
+        //         customer.ContactPersonName = res.ContactPersonName;
+        //         customer.ContactPersonEmail = res.ContactPersonEmail;
+        //         customer.Vat = res.Vat;
 
-                _context.Update(customer);
-                await _context.SaveChangesAsync();
+        //         _context.Update(customer);
+        //         await _context.SaveChangesAsync();
 
-                return RedirectToAction("CustomerList");
-            }
+        //         return RedirectToAction("CustomerList");
+        //     }
 
-            return View(res);
-        }
+        //     return View(res);
+        // }
 
         [HttpPost]
         public async Task<IActionResult> DeleteCustomer(int id)

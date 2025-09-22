@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+
 
 namespace ArkCustomerManagement.Models;
 
-public partial class Customer
+public class CustomerRequest
 {
-    
     public int? CustomerId { get; set; }
+
     [Required]
     public string Name { get; set; }
     [Required]

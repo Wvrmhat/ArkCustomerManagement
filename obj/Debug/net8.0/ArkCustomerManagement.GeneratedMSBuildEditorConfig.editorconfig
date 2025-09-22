@@ -26,8 +26,8 @@ build_property.GenerateRazorMetadataSourceChecksumAttributes =
 build_property.MSBuildProjectDirectory = C:\Users\maxna\source\repos\ArkCustomerManagement
 build_property._RazorSourceGeneratorDebug = 
 
-[C:/Users/maxna/source/repos/ArkCustomerManagement/Views/Home/AddCustomer.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxBZGRDdXN0b21lci5jc2h0bWw=
+[C:/Users/maxna/source/repos/ArkCustomerManagement/Views/Home/CustomerForm.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3NcSG9tZVxDdXN0b21lckZvcm0uY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [C:/Users/maxna/source/repos/ArkCustomerManagement/Views/Home/CustomerList.cshtml]
