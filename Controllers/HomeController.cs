@@ -3,6 +3,7 @@ using ArkCustomerManagement.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
+using System.Linq.Dynamic.Core;
 
 namespace ArkCustomerManagement.Controllers
 {
@@ -26,11 +27,57 @@ namespace ArkCustomerManagement.Controllers
         {
             return View();
         }
-        public async Task<IActionResult> CustomerList()
+        public async Task<IActionResult> CustomerList(string sort, string searchString, int? pageNumber)
         {
-            var customers = await _context.Customers.ToListAsync();
-            return View(customers);
+            ViewData["CurrentFilter"] = searchString;
+
+            ViewData["NameSortParm"] = String.IsNullOrEmpty(sort) ? "Name_desc" : "Name";
+            ViewData["AddressSortParm"] = sort == "Address" ? "Address_desc" : "Address";
+            ViewData["TelephoneSortParm"] = sort == "Telephone" ? "Telephone_desc" : "Telephone";
+            ViewData["ContactPersonNameSortParm"] = sort == "ContactPersonName" ? "ContactPersonName_desc" : "ContactPersonName";
+            ViewData["ContactPersonEmailSortParm"] = sort == "ContactPersonEmail" ? "ContactPersonEmail_desc" : "ContactPersonEmail";
+            ViewData["VatSortParm"] = sort == "Vat" ? "Vat_desc" : "Vat";
+
+
+            if (string.IsNullOrEmpty(sort))
+            {
+                sort = "Name";
+            }
+            var customersQuery = _context.Customers.AsQueryable();
+            if (!string.IsNullOrEmpty(searchString))
+            {
+                customersQuery = customersQuery.Where(c =>
+                    c.Name.Contains(searchString) ||
+                    (c.Vat.HasValue && c.Vat.Value.ToString().Contains(searchString))
+                );
+            }
+
+            try
+            {
+                customersQuery = customersQuery.OrderBy(sort);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sorting customers by {Sort}", sort);
+                customersQuery = customersQuery.OrderBy(c => c.Name);
+            }
+
+            int pageSize = 10;
+            int currentPageNumber = pageNumber ?? 1;
+            ViewData["CurrentPage"] = currentPageNumber;
+            ViewData["TotalPages"] = (int)Math.Ceiling((double)await customersQuery.CountAsync() / pageSize);
+            ViewData["TotalCustomers"] = await customersQuery.CountAsync();
+
+            var paginatedCustomers = await customersQuery
+                .Skip((currentPageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            // var customers = await _context.Customers.ToListAsync();
+            return View(paginatedCustomers);
         }
+
+
 
         // [HttpGet]
         // public IActionResult AddCustomer() 
@@ -108,89 +155,11 @@ namespace ArkCustomerManagement.Controllers
             return View(res);
         }
 
-        // [HttpPost]
-        // public async Task<IActionResult> AddCustomer(AddCustomer res)
-        // {
-        //     if (ModelState.IsValid)
-        //     {
-        //         var newCustomer = new Customer
-        //         {
-        //             Name = res.Name,
-        //             Address = res.Address,
-        //             TelephoneNumber = res.TelephoneNumber,
-        //             ContactPersonName = res.ContactPersonName,
-        //             ContactPersonEmail = res.ContactPersonEmail,
-        //             Vat = res.Vat
-        //         };
-        //         _context.Customers.Add(newCustomer);
-        //         await _context.SaveChangesAsync();
-
-        //         return RedirectToAction("CustomerList");
-        //     }
-
-        //     return View(res);
-        // }
-
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
-
-        // [HttpGet]
-        // public async Task<IActionResult> EditCustomer(int id)
-        // {
-        //     var customer = await _context.Customers.FindAsync(id);
-        //     if (customer == null)
-        //     {
-        //         return NotFound();
-        //     }
-
-        //     var editCustomer = new EditCustomer
-        //     {
-        //         CustomerId = customer.CustomerId,
-        //         Name = customer.Name,
-        //         Address = customer.Address,
-        //         TelephoneNumber = customer.TelephoneNumber,
-        //         ContactPersonName = customer.ContactPersonName,
-        //         ContactPersonEmail = customer.ContactPersonEmail,
-        //         Vat = customer.Vat
-        //     };
-
-        //     return View(editCustomer);
-        // }
-
-        // [HttpPost]
-        // public async Task<IActionResult> EditCustomer(int id, [bind("CustomerId,Name,Address,TelephoneNumber,ContactPersonName,ContactPersonEmail,Vat")] EditCustomer res)
-        // {
-        //     if (id != res.CustomerId)
-        //     {
-        //         return BadRequest();
-        //     }
-
-        //     if (ModelState.IsValid)
-        //     {
-        //         var customer = await _context.Customers.FindAsync(id);
-        //         if (customer == null)
-        //         {
-        //             return NotFound();
-        //         }
-
-        //         customer.Name = res.Name;
-        //         customer.Address = res.Address;
-        //         customer.TelephoneNumber = res.TelephoneNumber;
-        //         customer.ContactPersonName = res.ContactPersonName;
-        //         customer.ContactPersonEmail = res.ContactPersonEmail;
-        //         customer.Vat = res.Vat;
-
-        //         _context.Update(customer);
-        //         await _context.SaveChangesAsync();
-
-        //         return RedirectToAction("CustomerList");
-        //     }
-
-        //     return View(res);
-        // }
 
         [HttpPost]
         public async Task<IActionResult> DeleteCustomer(int id)
