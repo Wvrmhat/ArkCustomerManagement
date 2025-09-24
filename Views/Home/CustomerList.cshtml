@@ -13,10 +13,19 @@
     <a asp-controller="Home" asp-action="CustomerForm" class="btn btn-primary mb-3">Add New Customer</a>
 
     <form asp-controller="Home" asp-action="CustomerList" method="get" class="form-inline mb-3">
-        <div class="form-group mr-2">
+        <div class="input-group">
             <input type="text" name="searchString" value="@ViewData["CurrentFilter"]" class="form-control" placeholder="Search by name or VAT number " />
+            <button type="submit" class="btn btn-secondary">
+                <i class="bi bi-search"></i>
+            </button>
+            @if (!string.IsNullOrEmpty(ViewData["CurrentFilter"] as string)) {
+                <a asp-action="CustomerList" class="btn btn-outline-secondary ms-2">
+                    <i class="bi bi-x-lg"></i>
+                </a>
+            }
+            
         </div>
-        <button type="button" class="btn btn-secondary">Search</button>
+        
     </form>
 
     <table class="table table-striped">
@@ -24,22 +33,22 @@
             <tr>
                 <th></th>
                 <th>
-                    <a asp-action="CustomerList" asp-route-sortOrder="@ViewData["NameSortParm"]">Name</a>
+                    <a asp-action="CustomerList" asp-route-sort="@ViewData["NameSortParm"]">Name</a>
                 </th>
                 <th>
-                    <a asp-action="CustomerList" asp-route-sortOrder="@ViewData["AddressSortParm"]">Address</a>
+                    <a asp-action="CustomerList" asp-route-sort="@ViewData["AddressSortParm"]">Address</a>
                 </th>
                 <th>
-                    <a asp-action="CustomerList" asp-route-sortOrder="@ViewData["ContactPersonNameSortParm"]">Contact Person</a>
+                    <a asp-action="CustomerList" asp-route-sort="@ViewData["ContactPersonNameSortParm"]">Contact Person</a>
                 </th>
                 <th>
-                    <a asp-action="CustomerList" asp-route-sortOrder="@ViewData["ContactPersonEmailSortParm"]">Email</a>
+                    <a asp-action="CustomerList" asp-route-sort="@ViewData["ContactPersonEmailSortParm"]">Email</a>
                 </th>
                 <th>
-                    <a asp-action="CustomerList" asp-route-sortOrder="@ViewData["VatSortParm"]">VAT</a>
+                    <a asp-action="CustomerList" asp-route-sort="@ViewData["VatSortParm"]">VAT</a>
                 </th>
                 <th>
-                    <a asp-action="CustomerList" asp-route-sortOrder="@ViewData["TelephoneSortParm"]">Telephone</a>
+                    <a asp-action="CustomerList" asp-route-sort="@ViewData["TelephoneSortParm"]">Telephone</a>
                 <th></th>
             </tr>
         </thead>
@@ -48,7 +57,8 @@
             {
                 <tr>
                     <td>
-                      <a asp-controler="Home" asp-action="CustomerForm" asp-route-id="@customer.CustomerId" class="btn btn-sm btn-secondary">Edit</a>
+                      <a asp-controller="Home" asp-action="CustomerForm" asp-route-id="@customer.CustomerId" class="btn btn-sm btn-secondary">
+                      <i class="bi bi-pencil"></i></a>
                     </td>
                     <td>@customer.Name</td>
                     <td>@customer.Address</td>
@@ -57,7 +67,8 @@
                     <td>@customer.Vat</td>
                     <td>@customer.TelephoneNumber</td>
                     <td>
-                    <a asp-controller="Home" asp-action="DeleteCustomer" asp-route-id="@customer.CustomerId" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this customer?');">Delete</a>
+                    <a asp-controller="Home" asp-action="DeleteCustomer" asp-route-id="@customer.CustomerId" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this customer?');">
+                     <i class="bi bi-trash"></i></a>
                     </td>
                 </tr>
             }
@@ -70,27 +81,33 @@
         var searchString = ViewData["CurrentFilter"] as string;
         var sortOrder = ViewData["CurrentSort"] as string;
     }
-    <div class="d-flex justify-content-between">
+    <div class="d-flex mt-3">
+        <ul class="pagination">
+            <li class="page-item @prevDisabled">
+                <a asp-action="CustomerList" asp-route-pageNumber="@(currentPage - 1)" asp-route-sort="@sortOrder"
+                    asp-route-searchString="@searchString" class="page-link">
+                    <i class="bi bi-chevron-left"></i>
+                </a>
+            </li>
+            @for (int i = 1; i <= totalPages; i++)
+            {
+                <li class="page-item @(i == currentPage ? "active" : "")">
+                    <a asp-action="CustomerList" asp-route-pageNumber="@i" asp-route-sort="@sortOrder"
+                        asp-route-searchString="@searchString" class="page-link">@i
+                    </a>
+                </li>
+            }
+
+            <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
+                <a asp-action="CustomerList" asp-route-pageNumber="@(currentPage + 1)" asp-route-sort="@sortOrder"
+                    asp-route-searchString="@searchString" class="page-link">
+                    <i class="bi bi-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+     <div class="d-flex justify-content-between">
         Page @currentPage of @totalPages
      </div>
-     <ul class="pagination>
-        <li class="page-item @prevDisabled">
-            <a  asp-action="CustomerList" 
-                asp-route-pageNumber="@(currentPage - 1)" 
-                asp-route-sortOrder="@sortOrder" 
-                asp-route-searchString="@searchString" 
-                class="page-link">Previous
-            </a>
-        </li>
-        <li class="page-item @(currentPage >= totalPages ? "disabled" : "")">
-            <a 
-                asp-action="CustomerList" 
-                asp-route-pageNumber="@(currentPage + 1)" 
-                asp-route-sortOrder="@sortOrder" 
-                asp-route-searchString="@searchString" 
-                class="page-link">Next
-            </a>
-        </li>
-     </ul>
     
 </div>

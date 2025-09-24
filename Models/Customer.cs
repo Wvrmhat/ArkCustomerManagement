@@ -7,7 +7,7 @@ namespace ArkCustomerManagement.Models;
 public partial class Customer
 {
     
-    public int? CustomerId { get; set; }
+    public int CustomerId { get; set; }
     [Required]
     public string Name { get; set; }
     [Required]
@@ -17,6 +17,7 @@ public partial class Customer
 
     public string? ContactPersonName { get; set; }
 
+    [EmailAddress(ErrorMessage = "Invalid Email Address format")]
     public string? ContactPersonEmail { get; set; }
 
     public int? Vat { get; set; }

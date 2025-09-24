@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ArkCustomerManagement")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+fc71c802dbca4283bbca4aa0c88da261b138803f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d11ea84832306c1727193aaa143d010945b10d75")]
 [assembly: System.Reflection.AssemblyProductAttribute("ArkCustomerManagement")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ArkCustomerManagement")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

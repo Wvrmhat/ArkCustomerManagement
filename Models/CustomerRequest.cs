@@ -16,6 +16,7 @@ public class CustomerRequest
 
     public string? ContactPersonName { get; set; }
 
+    [EmailAddress(ErrorMessage = "Invalid Email Address format")]
     public string? ContactPersonEmail { get; set; }
 
     public int? Vat { get; set; }

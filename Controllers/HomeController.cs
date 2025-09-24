@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics;
 using System.Linq.Dynamic.Core;
+using System.Linq.Expressions;
 
 namespace ArkCustomerManagement.Controllers
 {
@@ -31,7 +32,7 @@ namespace ArkCustomerManagement.Controllers
         {
             ViewData["CurrentFilter"] = searchString;
 
-            ViewData["NameSortParm"] = String.IsNullOrEmpty(sort) ? "Name_desc" : "Name";
+            ViewData["NameSortParm"] = sort == "Name" ? "Name_desc" : "Name";
             ViewData["AddressSortParm"] = sort == "Address" ? "Address_desc" : "Address";
             ViewData["TelephoneSortParm"] = sort == "Telephone" ? "Telephone_desc" : "Telephone";
             ViewData["ContactPersonNameSortParm"] = sort == "ContactPersonName" ? "ContactPersonName_desc" : "ContactPersonName";
@@ -52,15 +53,41 @@ namespace ArkCustomerManagement.Controllers
                 );
             }
 
-            try
+            var sortMapping = new Dictionary<string, Expression<Func<Customer, object>>>
             {
-                customersQuery = customersQuery.OrderBy(sort);
+                ["Name"] = c => c.Name,
+               ["Address"] = c => c.Address,
+               ["Telephone"] = c => c.TelephoneNumber,
+               ["ContactPersonName"] = c => c.ContactPersonName,
+               ["ContactPersonEmail"] = c => c.ContactPersonEmail,
+               ["Vat"] = c => c.Vat
+            };
+            var sortOrder = sort.Replace("_desc","");
+            if(sortMapping.ContainsKey(sortOrder))
+            {
+                if (sort.EndsWith("_desc"))
+                {
+                    customersQuery = customersQuery.OrderByDescending(sortMapping[sortOrder]);
+                }
+                else
+                {
+                    customersQuery = customersQuery.OrderBy(sortMapping[sortOrder]);
+                }
             }
-            catch (Exception ex)
+            else
             {
-                _logger.LogError(ex, "Error sorting customers by {Sort}", sort);
                 customersQuery = customersQuery.OrderBy(c => c.Name);
             }
+
+            // try
+            // {
+            //     customersQuery = customersQuery.OrderBy(sort);
+            // }
+            // catch (Exception ex)
+            // {
+            //     _logger.LogError(ex, "Error sorting customers by {Sort}", sort);
+            //     customersQuery = customersQuery.OrderBy(c => c.Name);
+            // }
 
             int pageSize = 10;
             int currentPageNumber = pageNumber ?? 1;
@@ -77,13 +104,6 @@ namespace ArkCustomerManagement.Controllers
             return View(paginatedCustomers);
         }
 
-
-
-        // [HttpGet]
-        // public IActionResult AddCustomer() 
-        // { 
-        //     return View(new AddCustomer()); 
-        // }
 
         [HttpGet]
         public IActionResult CustomerForm(int? id)
@@ -115,41 +135,38 @@ namespace ArkCustomerManagement.Controllers
         {
             if (ModelState.IsValid)
             {
-                if(res.CustomerId.HasValue)
+                if (res.CustomerId.HasValue && res.CustomerId.Value != 0)
                 {
                     var existingCustomer = await _context.Customers.FindAsync(res.CustomerId.Value);
-                    if (existingCustomer != null)
+                    if (existingCustomer == null)
                     {
-                        existingCustomer.Name = res.Name;
-                        existingCustomer.Address = res.Address;
-                        existingCustomer.TelephoneNumber = res.TelephoneNumber;
-                        existingCustomer.ContactPersonName = res.ContactPersonName;
-                        existingCustomer.ContactPersonEmail = res.ContactPersonEmail;
-                        existingCustomer.Vat = res.Vat;
-
-                        _context.Update(existingCustomer);
-                        await _context.SaveChangesAsync();
-
-                        return RedirectToAction("CustomerList");
+                        return NotFound();
                     }
-                    return NotFound();
-                } 
+
+                    existingCustomer.Name = res.Name;
+                    existingCustomer.Address = res.Address;
+                    existingCustomer.TelephoneNumber = res.TelephoneNumber;
+                    existingCustomer.ContactPersonName = res.ContactPersonName;
+                    existingCustomer.ContactPersonEmail = res.ContactPersonEmail;
+                    existingCustomer.Vat = res.Vat;
+
+                }
                 else
                 {
                     var newCustomer = new Customer
-                {
-                    Name = res.Name,
-                    Address = res.Address,
-                    TelephoneNumber = res.TelephoneNumber,
-                    ContactPersonName = res.ContactPersonName,
-                    ContactPersonEmail = res.ContactPersonEmail,
-                    Vat = res.Vat
-                };
+                    {
+                        Name = res.Name,
+                        Address = res.Address,
+                        TelephoneNumber = res.TelephoneNumber,
+                        ContactPersonName = res.ContactPersonName,
+                        ContactPersonEmail = res.ContactPersonEmail,
+                        Vat = res.Vat
+                    };
                     _context.Customers.Add(newCustomer);
-                   
+
                 }
-                 await _context.SaveChangesAsync();
-                 return RedirectToAction("CustomerList");
+                await _context.SaveChangesAsync();
+                return RedirectToAction("CustomerList");
             }
 
             return View(res);

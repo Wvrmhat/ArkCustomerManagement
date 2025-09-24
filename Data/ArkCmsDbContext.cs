@@ -27,8 +27,8 @@ public partial class ArkCmsDbContext : DbContext
         {
             entity.ToTable("Customer");
 
+            entity.HasKey(e => e.CustomerId);
             entity.Property(e => e.CustomerId)
-                .ValueGeneratedNever()
                 .HasColumnName("CustomerID");
             entity.Property(e => e.Address)
                 .HasMaxLength(255)
